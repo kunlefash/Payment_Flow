@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZonePay Payment Flow</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .comparison-wrapper {
+            display: flex;
+            min-height: 800px;
+            gap: 0;
+        }
+        
+        .flow-column {
+            flex: 1;
+            padding: 30px;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        .traditional {
+            background: #fff5f5;
+            border-right: 3px solid #e2e8f0;
+        }
+        
+        .new-flow {
+            background: #f0fff4;
+        }
+        
+        .flow-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .traditional .flow-title {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .new-flow .flow-title {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .step {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #4299e1;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .traditional .step-number {
+            background: #e53e3e;
+        }
+        
+        .new-flow .step-number {
+            background: #38a169;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin: 10px 0 8px 0;
+            color: #2d3748;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+        
+        .step-details {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #4299e1;
+            font-size: 0.9em;
+            color: #2d3748;
+        }
+        
+        .traditional .step-details {
+            border-left-color: #e53e3e;
+        }
+        
+        .new-flow .step-details {
+            border-left-color: #38a169;
+        }
+        
+        .screenshot-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .screenshot-container img {
+            max-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .security-note {
+            background: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f56500;
+        }
+        
+        .security-note h4 {
+            margin: 0 0 8px 0;
+            color: #c05621;
+        }
+        
+        .highlight {
+            background: #fff5b4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px;
+            border-left: 4px solid #f6e05e;
+        }
+        
+        .highlight h3 {
+            margin: 0 0 15px 0;
+            color: #744210;
+            font-size: 1.4em;
+        }
+        
+        .highlight p {
+            margin: 0;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .changes-needed {
+            background: #e6fffa;
+            padding: 30px;
+            margin: 30px;
+            border-radius: 8px;
+            border-left: 4px solid #319795;
+        }
+        
+        .changes-needed h4 {
+            margin: 0 0 15px 0;
+            color: #234e52;
+            font-size: 1.3em;
+        }
+        
+        .changes-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .changes-list li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 1em;
+        }
+        
+        .changes-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #319795;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 30px;
+            text-align: center;
+            color: #4a5568;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .footer p {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        /* Enhanced responsive design */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+            }
+            
+            .flow-column {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-wrapper {
+                flex-direction: column;
+            }
+            
+            .traditional {
+                border-right: none;
+                border-bottom: 3px solid #e2e8f0;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .flow-title {
+                font-size: 1.5em;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Flow Comparison</h1>
+            <p class="subtitle">Traditional Banking vs ZonePay</p>
+        </div>
+        
+        <div class="comparison-wrapper">
+            <!-- Traditional Flow -->
+            <div class="flow-column traditional">
+                <div class="flow-title">🏦 Traditional Banking Flow</div>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Customer Opens Bank App</div>
+                    <div class="step-description">Customer launches the mobile banking application</div>
+                    <div class="step-details">
+                        • App launch from device home screen<br>
+                        • Loading and initialization of banking app<br>
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/alat-app-launch.jpg" alt="ALAT Bank App Launch Screen">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Customer Authentication</div>
+                    <div class="step-description">Customer authenticates login using password or biometrics</div>
+                    <div class="step-details">
+                        • Enter login credentials (email/password)<br>
+                        • Biometric authentication (fingerprint/face ID)<br>
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step2.JPG" alt="Authentication Screen">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Navigate to Send Money</div>
+                    <div class="step-description">Customer is taken to homepage and clicks on send money icon</div>
+                    <div class="step-details">
+                        • Access homepage<br>
+                        • Locate and select "Send Money" feature<br>
+                        • Navigate to transfer options menu
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step3.JPG" alt="Homepage Navigation">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Select Transfer Method</div>
+                    <div class="step-description">Customer selects "To Bank Account" in the send money menu</div>
+                    <div class="step-details">
+                        • Review available transfer options<br>
+                        • Select "To Bank Account" option<br>
+                        • Proceed to recipient details entry
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step4.JPG" alt="Transfer Method Selection">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Input Account Number</div>
+                    <div class="step-description">Customer inputs recipient's account number</div>
+                    <div class="step-details">
+                        • Manual entry of 10-digit account number<br>
+                        • Validate account number format<br>
+                        • Prepare for bank selection
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step5.JPG" alt="Account Number Input">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-title">Select Recipient Bank</div>
+                    <div class="step-description">Customer selects the recipient's bank from available options</div>
+                    <div class="step-details">
+                        • Browse or search bank directory<br>
+                        • Select correct financial institution<br>
+                        • Confirm bank selection for processing
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step6.JPG" alt="Bank Selection">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">7</div>
+                    <div class="step-title">Account Verification & Selection</div>
+                    <div class="step-description">System performs account enquiry and customer selects account for transaction</div>
+                    <div class="step-details">
+                        • System validates account via API call<br>
+                        • Display retrieved account holder name<br>
+                        • Customer confirms correct recipient account
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step7.JPG" alt="Account Verification">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">8</div>
+                    <div class="step-title">Enter Transaction Amount</div>
+                    <div class="step-description">Customer enters the amount for the transaction</div>
+                    <div class="step-details">
+                        • Input transaction amount<br>
+                        • Add transaction description/reference (optional)<br>
+                        • Review transaction summary before confirmation
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step8.JPG" alt="Amount Entry">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">9</div>
+                    <div class="step-title">Transaction Authentication & Completion</div>
+                    <div class="step-description">Customer authenticates transaction with PIN and completes payment</div>
+                    <div class="step-details">
+                        • Enter secure transaction PIN<br>
+                        • System processes payment transaction<br>
+                        • Display transaction success confirmation
+                    </div>
+                    <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step9.JPG" alt="Transaction Completion">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ZonePay Flow -->
+            <div class="flow-column new-flow">
+                <div class="flow-title"><img src="/Users//mac/Downloads/svgtopng/ZONE LOGO B.png" alt="Zone Logo" style="width: 64px; height: 24px; margin-right: 8px; vertical-align: middle;"> ZonePay Flow</div>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Camera Detects Payment Link</div>
+                    <div class="step-description">Camera detects payment link in QR code and payment link is clicked</div>
+                    <div class="step-details">
+                        • Camera scans QR code<br>
+                        • QR contains payment link with payment data<br>
+                        • Customer clicks payment link 
+                    </div>
+                                        <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step1-1.jpeg" alt="Account Verification">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Payment Link Opens Bank App</div>
+                    <div class="step-description">Banking app opens via payment link technology</div>
+                    <div class="step-details">
+                        • App opens directly to payment page<br>
+                        • No login required initially
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Pre-populated Payment Page</div>
+                    <div class="step-description">All merchant details automatically filled</div>
+                    <div class="step-details">
+                        • Account number<br>
+                        • Account name<br>
+                        • Bank name<br>
+                        • Amount (for dynamic QR only)
+                    </div>
+                                        <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step7.JPG" alt="Account Verification">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Enter Amount (Static QR Only)</div>
+                    <div class="step-description">User enters amount for static QR codes</div>
+                    <div class="step-details">
+                        • Dynamic QR: Amount pre-filled<br>
+                        • Static QR: User enters amount<br>
+                        • Add description/reference (optional)
+                    </div>
+                                        <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step8.JPG" alt="Amount Entry">
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">2FA Authentication</div>
+                    <div class="step-description">Security checkpoint before transaction</div>
+                    <div class="step-details">
+                        • Biometric authentication (1st factor)<br>
+                        • Or session-based authentication<br>
+                        • Device trust verification
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-title">Final Validation</div>
+                    <div class="step-description">PIN entry for transaction completion</div>
+                    <div class="step-details">
+                        • PIN entry (2nd factor)<br>
+                        • Transaction processing<br>
+                        • Success confirmation
+                    </div>
+                                        <div class="screenshot-container">
+                        <img src="/Users/mac/Desktop/step9.JPG" alt="Transaction Completion">
+                    </div>
+                </div>
+                
+                <div class="security-note">
+                    <h4>⚠️ Security Consideration</h4>
+                    <p>Since users bypass login, implement 2FA at payment stage using biometric + PIN or device trust + PIN combinations.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This comparison shows the streamlined ZonePay payment flow vs traditional banking payments.<br>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
